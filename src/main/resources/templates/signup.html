@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signup - team_sync</title>
+    <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body data-page="signup">
+<div class="topbar">
+    <div class="wrap">
+        <div class="topbar-row">
+            <div class="logo">
+                <span class="mark" aria-hidden="true"></span>
+                <a class="name" th:href="@{/}">team_sync</a>
+                <span class="tag">협업 · 프로젝트 · 이슈</span>
+            </div>
+            <div class="auth">
+                <a class="btn ghost" th:href="@{/login}">로그인</a>
+                <a class="btn primary" th:href="@{/signup}">회원가입</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="grid">
+        <section class="panel">
+            <div class="hd">가입 안내</div>
+            <div class="bd">
+                <div class="callout">
+                    기본 권한은 <b>ROLE_USER</b>로 설정됩니다.<br>
+                    가입 후 로그인하면 메인(포털)에서 프로젝트/이슈를 확인할 수 있어요.
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="hd">회원가입</div>
+            <div class="bd">
+                <form th:action="@{/signup}" th:object="${member}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="field">
+                        <label for="email">이메일</label>
+                        <input type="text" id="email" th:field="*{email}" autocomplete="username">
+                    </div>
+                    <div class="field">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" th:field="*{name}" autocomplete="name">
+                    </div>
+                    <div class="field">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" th:field="*{password}" autocomplete="new-password">
+                    </div>
+
+                    <input type="hidden" th:field="*{role}" value="ROLE_USER"/>
+
+                    <div class="actions">
+                        <button class="btn primary" type="submit">가입하기</button>
+                        <a class="btn" th:href="@{/}">홈</a>
+                    </div>
+                    <div class="muted" style="margin-top:10px;">
+                        이미 계정이 있으신가요? <a th:href="@{/login}"><b>로그인</b></a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div class="foot">© team_sync · portal-style signup</div>
+</div>
+
+<script th:src="@{/js/portal.js}"></script>
+</body>
+</html>
+

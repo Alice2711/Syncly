@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - team_sync</title>
+    <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body data-page="login">
+<div class="topbar">
+    <div class="wrap">
+        <div class="topbar-row">
+            <div class="logo">
+                <span class="mark" aria-hidden="true"></span>
+                <a class="name" th:href="@{/}">team_sync</a>
+                <span class="tag">협업 · 프로젝트 · 이슈</span>
+            </div>
+            <div class="auth">
+                <a class="btn ghost" th:href="@{/signup}">회원가입</a>
+                <a class="btn primary" th:href="@{/login}">로그인</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="grid">
+        <section class="panel">
+            <div class="hd">환영합니다</div>
+            <div class="bd">
+                <div class="callout">
+                    팀 협업툴 <b>team_sync</b>에 오신 것을 환영합니다.<br>
+                    프로젝트 검색, 이슈 보드, 위키, 알림을 한 곳에서 관리하세요.
+                </div>
+
+                <div style="margin-top:12px;" class="panel" aria-label="What’s new">
+                    <div class="hd">오늘의 현황</div>
+                    <div class="bd">
+                        <div class="muted">- 이번 주 마일스톤: 인증/회원가입 1차</div>
+                        <div class="muted">- 체크인: 17:00</div>
+                        <div class="muted">- 긴급 이슈: 1건</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="hd">로그인</div>
+            <div class="bd">
+                <p class="msg error" th:if="${param.error}">
+                    로그인에 실패했습니다. 이메일 또는 비밀번호를 확인하세요.
+                </p>
+                <p class="msg ok" th:if="${param.logout}">
+                    로그아웃되었습니다.
+                </p>
+
+                <form th:action="@{/login}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="field">
+                        <label for="email">이메일</label>
+                        <input type="text" id="email" name="email" autocomplete="username" autofocus>
+                    </div>
+
+                    <div class="field">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" autocomplete="current-password">
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn primary" type="submit">로그인</button>
+                        <a class="btn" th:href="@{/}">홈</a>
+                    </div>
+                    <div class="muted" style="margin-top:10px;">
+                        아직 계정이 없으신가요? <a th:href="@{/signup}"><b>회원가입</b></a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div class="foot">© team_sync · portal-style login</div>
+</div>
+<script th:src="@{/js/portal.js}"></script>
+</body>
+</html>
+
