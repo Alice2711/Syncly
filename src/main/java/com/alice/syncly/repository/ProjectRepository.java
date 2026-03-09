@@ -9,5 +9,7 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByOwner(Member owner);
+
+    List<Project> findByNameContainingIgnoreCase(String name);
 }
 

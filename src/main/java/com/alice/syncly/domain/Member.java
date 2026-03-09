@@ -23,17 +23,21 @@ public class Member {
     @Column(nullable = false)
     private String role;
 
+    @Column(nullable = false)
+    private String notionId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     protected Member() {
     }
 
-    public Member(String email, String password, String name, String role) {
+    public Member(String email, String password, String name, String role, String notionId) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.role = role;
+        this.notionId = notionId;
     }
 
     @PrePersist
@@ -59,6 +63,10 @@ public class Member {
 
     public String getRole() {
         return role;
+    }
+
+    public String getNotionId() {
+        return notionId;
     }
 
     public LocalDateTime getCreatedAt() {

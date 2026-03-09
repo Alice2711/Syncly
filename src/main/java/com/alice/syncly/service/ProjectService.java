@@ -37,5 +37,9 @@ public class ProjectService {
     public List<Project> findAll() {
         return projectRepository.findAll();
     }
+
+    public List<Project> searchByName(String name) {
+        return projectRepository.findByNameContainingIgnoreCase(name);
+    }
 }
 

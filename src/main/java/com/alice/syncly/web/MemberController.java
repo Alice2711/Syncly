@@ -25,7 +25,9 @@ public class MemberController {
                 request.getEmail(),
                 request.getPassword(),
                 request.getName(),
-                request.getRole()
+                request.getRole(),
+                request.getNotionId()
+
         );
         return ResponseEntity
                 .created(URI.create("/api/members/" + member.getId()))

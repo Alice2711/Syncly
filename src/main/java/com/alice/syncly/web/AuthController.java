@@ -36,7 +36,8 @@ public class AuthController {
                 request.getEmail(),
                 request.getPassword(),
                 request.getName(),
-                request.getRole() != null ? request.getRole() : "ROLE_USER"
+                request.getRole() != null ? request.getRole() : "ROLE_USER",
+                request.getNotionId()
         );
         model.addAttribute("signupSuccess", true);
         return "redirect:/login";

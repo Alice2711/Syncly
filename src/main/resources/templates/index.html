@@ -4,59 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>team_sync</title>
+    <title>WorkWith</title>
     <link rel="stylesheet" th:href="@{/css/portal.css}">
 </head>
 <body data-page="home">
-<div class="topbar">
-    <div class="wrap">
-        <div class="topbar-row">
-            <div class="logo">
-                <span class="mark" aria-hidden="true"></span>
-                <span class="name">team_sync</span>
-                <span class="tag">협업 · 프로젝트 · 이슈</span>
-            </div>
-
-            <div class="auth" sec:authorize="isAnonymous()">
-                <span>환영합니다. 로그인이 필요합니다.</span>
-                <a class="btn ghost" th:href="@{/signup}">회원가입</a>
-                <a class="btn primary" th:href="@{/login}">로그인</a>
-            </div>
-
-            <div class="auth" sec:authorize="isAuthenticated()">
-                <span>
-                    <b sec:authentication="name"></b> 님
-                </span>
-                <form th:action="@{/logout}" method="post" style="margin:0;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button class="btn" type="submit">로그아웃</button>
-                </form>
-            </div>
-        </div>
-
-        <form class="search" th:action="@{/}" method="get">
-            <input type="text" name="q" th:value="${param.q}" placeholder="프로젝트 검색 (예: 기획, 백로그, sprint, 디자인)" autocomplete="off"/>
-            <button class="btn primary" type="submit">검색</button>
-        </form>
-        <div class="hint">
-            <span th:if="${param.q}">검색어: <b th:text="${param.q}">q</b> (현재는 UI만 제공, 기능은 추후 연결)</span>
-            <span th:unless="${param.q}">오늘의 추천: “이번 주 마일스톤”을 먼저 확인해보세요.</span>
-        </div>
-    </div>
-</div>
+<div th:replace="~{fragments/layout :: header('home')}"></div>
 
 <div class="wrap">
     <div class="layout">
-        <!-- LEFT: old-portal style menu -->
+        <!-- LEFT: 내 프로젝트 목록 -->
         <aside class="panel">
-            <div class="hd">바로가기</div>
-            <nav class="nav" aria-label="Quick menu">
-                <a href="#" onclick="return false;">내 프로젝트 <span class="badge">3</span></a>
-                <a href="#" onclick="return false;">즐겨찾기 <span class="badge">2</span></a>
-                <a href="#" onclick="return false;">이슈 보드 <span class="badge">7</span></a>
-                <a href="#" onclick="return false;">캘린더 <span class="badge">오늘</span></a>
-                <a href="#" onclick="return false;">문서(위키) <span class="badge">new</span></a>
-            </nav>
+            <div class="hd">내 프로젝트 목록</div>
+            <div class="bd" style="padding:10px 12px;">
+
+                <!-- 비로그인: blur -->
+                <div sec:authorize="isAnonymous()" class="blur-wrap" style="min-height:130px;">
+                    <div class="blur-content">
+                        <ul class="list">
+                            <li><div><b>프로젝트 A</b><div class="meta">멤버</div></div><span class="pill">상태</span></li>
+                            <li><div><b>프로젝트 B</b><div class="meta">멤버</div></div><span class="pill">상태</span></li>
+                            <li><div><b>프로젝트 C</b><div class="meta">멤버</div></div><span class="pill">상태</span></li>
+                        </ul>
+                    </div>
+                    <div class="blur-msg">로그인 후 내 프로젝트 목록을<br>확인할 수 있습니다</div>
+                </div>
+
+                <!-- 로그인: 실제 데이터 -->
+                <div sec:authorize="isAuthenticated()">
+                    <ul class="list"
+                        th:if="${myProjectMembers != null and !#lists.isEmpty(myProjectMembers)}">
+                        <li th:each="pm : ${myProjectMembers}">
+                            <div>
+                                <b th:text="${pm.project.name}">프로젝트명</b>
+                                <div class="meta" th:text="${pm.projectRole}">역할</div>
+                            </div>
+                            <span class="pill">상태 미설정</span>
+                        </li>
+                    </ul>
+                    <div th:if="${myProjectMembers == null or #lists.isEmpty(myProjectMembers)}"
+                         class="meta" style="padding:10px 0;">
+                        참여 중인 프로젝트가 없습니다.
+                    </div>
+                </div>
+
+            </div>
         </aside>
 
         <!-- CENTER: recent project status -->
@@ -66,56 +57,66 @@
                 <div class="kpi">
                     <div class="box">
                         <div class="label">진행 중</div>
-                        <div class="value ok">2</div>
-                        <div class="meta">이번 주 활성 프로젝트</div>
+                        <div class="value ok" th:text="${inProgressCount}">0</div>
+                        <div class="meta">상태 필드 연결 후 집계</div>
                     </div>
                     <div class="box">
                         <div class="label">대기</div>
-                        <div class="value warn">1</div>
-                        <div class="meta">승인/리소스 대기</div>
+                        <div class="value warn" th:text="${waitingCount}">0</div>
+                        <div class="meta">상태 필드 연결 후 집계</div>
                     </div>
                     <div class="box">
-                        <div class="label">긴급 이슈</div>
-                        <div class="value bad">1</div>
-                        <div class="meta">오늘 처리 필요</div>
+                        <div class="label">전체 프로젝트</div>
+                        <div class="value" th:text="${totalProjects}">0</div>
+                        <div class="meta">회사 전체 기준</div>
                     </div>
                 </div>
 
                 <div style="margin-top:14px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <!-- 마감일 기준 정렬 프로젝트 (deadline 필드 추가 전: createdAt 역순) -->
                     <section class="panel" style="border:1px solid #e7ecf8;">
-                        <div class="hd">최근 방문 프로젝트</div>
+                        <div class="hd">마감 임박 프로젝트</div>
                         <div class="bd">
-                            <ul class="list">
-                                <li>
-                                    <div>
-                                        <b>팀싱크 v1 런칭</b><div class="meta">마지막 활동: 15분 전 · 담당: FE/BE</div>
-                                    </div>
-                                    <span class="pill blue">진행중</span>
-                                </li>
-                                <li>
-                                    <div>
-                                        <b>업무 템플릿 정리</b><div class="meta">마지막 활동: 어제 · 문서/가이드</div>
-                                    </div>
-                                    <span class="pill green">안정</span>
-                                </li>
-                                <li>
-                                    <div>
-                                        <b>Q1 로드맵</b><div class="meta">마지막 활동: 3일 전 · 기획</div>
-                                    </div>
-                                    <span class="pill">대기</span>
-                                </li>
-                            </ul>
+
+                            <!-- 비로그인 blur -->
+                            <div sec:authorize="isAnonymous()" class="blur-wrap" style="min-height:100px;">
+                                <div class="blur-content">
+                                    <ul class="list">
+                                        <li><div><b>프로젝트 A</b><div class="meta">D-3</div></div><span class="pill">상태</span></li>
+                                        <li><div><b>프로젝트 B</b><div class="meta">D-7</div></div><span class="pill">상태</span></li>
+                                    </ul>
+                                </div>
+                                <div class="blur-msg">로그인 후 데이터를 확인할 수 있습니다</div>
+                            </div>
+
+                            <!-- 로그인 -->
+                            <div sec:authorize="isAuthenticated()">
+                                <ul class="list"
+                                    th:if="${recentProjects != null and !#lists.isEmpty(recentProjects)}">
+                                    <li th:each="p : ${recentProjects}">
+                                        <div>
+                                            <b th:text="${p.name}">프로젝트명</b>
+                                            <div class="meta">마감일 미설정 · 등록: <span th:text="${#temporals.format(p.createdAt, 'MM-dd')}">날짜</span></div>
+                                        </div>
+                                        <span class="pill">상태 미설정</span>
+                                    </li>
+                                </ul>
+                                <div th:if="${recentProjects == null or #lists.isEmpty(recentProjects)}"
+                                     class="meta" style="padding:8px 0;">
+                                    등록된 프로젝트가 없습니다.
+                                </div>
+                            </div>
+
                         </div>
                     </section>
 
+                    <!-- 이번 주 마감 작업 (Task 엔티티 추가 전: placeholder) -->
                     <section class="panel" style="border:1px solid #e7ecf8;">
-                        <div class="hd">이번 주 마일스톤</div>
+                        <div class="hd">이번 주 마감 작업</div>
                         <div class="bd">
-                            <b>인증/회원가입 1차 완료</b>
-                            <div class="meta">D-2 · 완료율 62%</div>
-                            <div class="bar" aria-label="Milestone progress"><span></span></div>
-                            <div class="meta" style="margin-top:10px;">
-                                다음 작업: 프로젝트 목록/검색 기능 연결, 이슈 보드 초안
+                            <div class="meta" style="padding:8px 0;">
+                                등록된 작업이 없습니다.<br>
+                                <span style="font-size:11px;">(Task 엔티티 연결 후 표시됩니다)</span>
                             </div>
                         </div>
                     </section>
@@ -123,47 +124,35 @@
             </div>
         </main>
 
-        <!-- RIGHT: issue summary + activity -->
+        <!-- RIGHT: 이슈 현황 (priority 순: P0 → P1 → P2) -->
         <aside class="panel">
             <div class="hd">이슈 현황</div>
             <div class="bd">
-                <ul class="list">
-                    <li>
-                        <div>
-                            <b>[P0] 로그인 실패 케이스</b>
-                            <div class="meta">담당: backend · 상태: 확인중</div>
-                        </div>
-                        <span class="pill red">긴급</span>
-                    </li>
-                    <li>
-                        <div>
-                            <b>[P1] 프로젝트 검색 UX</b>
-                            <div class="meta">담당: design · 상태: 초안</div>
-                        </div>
-                        <span class="pill blue">진행</span>
-                    </li>
-                    <li>
-                        <div>
-                            <b>[P2] 위키 템플릿</b>
-                            <div class="meta">담당: pm · 상태: 대기</div>
-                        </div>
-                        <span class="pill">대기</span>
-                    </li>
-                </ul>
 
-                <div style="margin-top:14px;" class="panel">
-                    <div class="hd">알림/공지</div>
-                    <div class="bd">
-                        <div class="meta">- 오늘 17:00 스프린트 체크인</div>
-                        <div class="meta">- 신규 멤버 온보딩 문서 업데이트</div>
-                        <div class="meta">- 배포 전 체크리스트 점검</div>
+                <!-- 비로그인 blur -->
+                <div sec:authorize="isAnonymous()" class="blur-wrap" style="min-height:120px;">
+                    <div class="blur-content">
+                        <ul class="list">
+                            <li><div><b>[P0] 이슈 제목</b><div class="meta">담당: - · 상태: -</div></div><span class="pill red">긴급</span></li>
+                            <li><div><b>[P1] 이슈 제목</b><div class="meta">담당: - · 상태: -</div></div><span class="pill blue">진행</span></li>
+                        </ul>
+                    </div>
+                    <div class="blur-msg">로그인 후 데이터를 확인할 수 있습니다</div>
+                </div>
+
+                <!-- 로그인: Issue 엔티티 연결 전 placeholder -->
+                <div sec:authorize="isAuthenticated()">
+                    <div class="meta" style="padding:8px 0;">
+                        등록된 이슈가 없습니다.<br>
+                        <span style="font-size:11px;">(Issue 엔티티 연결 후 P0→P1→P2 순으로 표시됩니다)</span>
                     </div>
                 </div>
+
             </div>
         </aside>
     </div>
 
-    <div class="foot">© team_sync · portal-style home (demo UI)</div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
 </div>
 <script th:src="@{/js/portal.js}"></script>
 </body>

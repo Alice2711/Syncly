@@ -6,6 +6,7 @@ public class MemberCreateRequest {
     private String password;
     private String name;
     private String role;
+    private String notionId;
 
     public MemberCreateRequest() {
     }
@@ -40,6 +41,14 @@ public class MemberCreateRequest {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getNotionId() {
+        return notionId;
+    }
+
+    public void setNotionId(String notionId) {
+        this.notionId = notionId;
     }
 }
 

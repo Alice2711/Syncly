@@ -22,9 +22,9 @@ public class MemberService {
     }
 
     @Transactional
-    public Member createMember(String email, String rawPassword, String name, String role) {
+    public Member createMember(String email, String rawPassword, String name, String role, String notionId) {
         String encoded = passwordEncoder.encode(rawPassword);
-        Member member = new Member(email, encoded, name, role);
+        Member member = new Member(email, encoded, name, role, notionId);
         return memberRepository.save(member);
     }
 
